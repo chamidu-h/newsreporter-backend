@@ -11,7 +11,8 @@ import java.time.LocalDateTime
 @CrossOrigin
 class ArticleController(
     private val articleRepository: ArticleRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,  // Comma here
+    private val reviewCommentRepository: ReviewCommentRepository
 ) {
 
     @PostMapping
@@ -46,5 +47,36 @@ class ArticleController(
             .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Article not found") }
         return ResponseEntity.ok(article)
     }
+
+    @PutMapping("/{id}/reject")
+fun rejectArticle(@PathVariable id: Long, @RequestBody payload: Map<String, String>): ResponseEntity<Article> {
+    val article = articleRepository.findById(id)
+        .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Article not found") }
+    
+    // Update article status to REJECTED and update timestamp
+    article.status = ArticleStatus.REJECTED
+    article.updatedAt = LocalDateTime.now()
+    articleRepository.save(article)
+
+    // Save the review comment
+    val commentText = payload["comment"] ?: ""
+    val editorId = 4L  // Replace with actual logic to retrieve the editor's id
+    val reviewComment = ReviewComment(
+        articleId = article.id,
+        editorId = editorId,
+        comment = commentText,
+        createdAt = LocalDateTime.now()
+    )
+    reviewCommentRepository.save(reviewComment)
+
+    return ResponseEntity.ok(article)
 }
 
+    
+    @GetMapping("/rejected")
+    fun getRejectedArticles(): ResponseEntity<List<Article>> {
+        val articles = articleRepository.findByStatus(ArticleStatus.REJECTED)
+        // Optionally, you can join with review comments to include them in the response
+        return ResponseEntity.ok(articles)
+    }
+}
