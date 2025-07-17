@@ -15,6 +15,9 @@ data class Article(
     
     @Column(columnDefinition = "TEXT")
     val content: String,
+
+    @Column(length = 300) // NEW: Add preview field
+    val preview: String? = null,
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id")

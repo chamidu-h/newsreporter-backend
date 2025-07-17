@@ -54,7 +54,7 @@ class UploadController {
         }
 
         // Construct the public URL. Optionally set PUBLIC_URL in your environment.
-        val publicUrlBase = System.getenv("PUBLIC_URL") ?: "http://192.168.8.199:8080"
+        val publicUrlBase = System.getenv("PUBLIC_URL") ?: "http://192.168.247.113:8080"
         val publicUrl = "$publicUrlBase/uploads/$filename"
 
         return ResponseEntity.ok(mapOf("url" to publicUrl))
